@@ -46,10 +46,10 @@ const contacts = [
   },
 ];
 
-// TODO: Generate a years worth of random pays using the contacts above
+// not used, please consider use seed.ts to generate pays.
 const pays = [];
 
-// TODO: After you generate pays, calculate the activity for the respective months
+// not used, please consider use seed.ts to generate pays.
 const activity = [
   { month: 'Jan', activity: 2000 },
   { month: 'Feb', activity: 1800 },

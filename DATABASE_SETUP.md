@@ -22,6 +22,7 @@ This will:
 - Create the database file at `data/cpay.db`
 - Create the necessary tables (contacts, pays)
 - Insert the 6 pre-populated contacts
+- Generate sample pays data distributed across the past 12 months
 
 ### 3. Start the Development Server
 
@@ -41,9 +42,20 @@ npm run dev
 - `id` (TEXT, PRIMARY KEY)
 - `contact_id` (TEXT, NOT NULL, FOREIGN KEY → contacts.id)
 - `amount` (INTEGER, NOT NULL) - stored in cents
-- `status` (TEXT, NOT NULL, CHECK: 'pending' or 'paid')
+- `status` (TEXT, NOT NULL, CHECK: 'pending' or 'received')
+- `flow` (TEXT, NOT NULL, CHECK: 'request' or 'pay')
 - `date` (TEXT, NOT NULL) - ISO date string (YYYY-MM-DD)
+- `note` (TEXT, NULLABLE) - optional note/description
 - `created_at` (TEXT, DEFAULT CURRENT_TIMESTAMP)
+
+## Database Indexes
+
+For better query performance, the following indexes are automatically created:
+- `idx_pays_contact_id` - Index on `pays.contact_id`
+- `idx_pays_status` - Index on `pays.status`
+- `idx_pays_flow` - Index on `pays.flow`
+- `idx_pays_date` - Index on `pays.date`
+- `idx_contacts_email` - Index on `contacts.email`
 
 ## Features
 
@@ -52,7 +64,7 @@ npm run dev
 - `fetchFilteredContacts()` - Get contacts with pay statistics
 - `fetchLatestPays()` - Get latest 5 pays
 - `fetchCardData()` - Get dashboard statistics
-- `fetchFilteredPays()` - Get paginated pays with search
+- `fetchFilteredPays()` - Get paginated pays with search and filtering
 - `fetchPayById()` - Get a single pay by ID
 - `fetchPaysPages()` - Get total pages for pagination
 - `fetchActivity()` - Get monthly activity data
@@ -64,13 +76,13 @@ npm run dev
 
 ## Generating Sample Pays
 
-To generate sample pays data, you can:
+The seed script (`npm run seed`) automatically generates sample pays data distributed across the past 12 months. To generate additional or different sample data, you can:
 
 1. **Use the UI**: Navigate to `/dashboard/pays/create` and create pays manually
 
-2. **Modify the seed script**: Uncomment the sample pays generation code in `scripts/seed.ts` and run `npm run seed` again
+2. **Modify the seed script**: Edit `scripts/seed.ts` to adjust the sample data generation logic and run `npm run seed` again (note: this will clear existing data)
 
-3. **Create a script**: Write a script to generate a year's worth of random pays
+3. **Create a custom script**: Write a separate script to generate additional pays data
 
 ## Database Location
 
@@ -92,4 +104,5 @@ If you want to use PostgreSQL instead (since `@vercel/postgres` is already insta
 - Amounts are stored in **cents** (integer) to avoid floating-point precision issues
 - The database uses WAL (Write-Ahead Logging) mode for better concurrency
 - All database operations are synchronous (better-sqlite3 is synchronous)
+- The schema includes automatic migrations for existing databases (e.g., adding `note` and `flow` fields, updating status values from 'paid' to 'received')
 
