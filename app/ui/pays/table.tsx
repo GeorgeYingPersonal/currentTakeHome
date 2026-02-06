@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { UpdatePay, DeletePay } from '@/app/ui/pays/buttons';
 import { fetchFilteredPays } from '@/app/lib/data';
+import { formatDateToLocal } from '@/app/lib/utils';
 
 //
 export default async function PaysTable({
@@ -37,6 +38,19 @@ export default async function PaysTable({
                     <p className="text-sm text-gray-500">{pay.email}</p>
                   </div>
                 </div>
+                <div className="flex w-full items-center justify-between border-b pb-4 pt-4">
+                  <p className="text-sm font-medium">
+                    {pay.amount.toLocaleString('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                    })}
+                  </p>
+                </div>
+                <div className="flex w-full items-center justify-between border-b pb-4 pt-4">
+                  <p className="text-sm text-gray-500">
+                    {formatDateToLocal(pay.date)}
+                  </p>
+                </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div className="flex justify-end gap-2">
                     <UpdatePay id={pay.id} />
@@ -54,6 +68,12 @@ export default async function PaysTable({
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Email
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Amount
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Date
                 </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="sr-only">Edit</span>
@@ -80,6 +100,15 @@ export default async function PaysTable({
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {pay.email}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {pay.amount.toLocaleString('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                    })}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {formatDateToLocal(pay.date)}
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">

@@ -18,7 +18,11 @@ export type Contact = {
 
 export type Pay = {
   id: string;
-  // TODO: build out what other fields this should have
+  contact_id: string;
+  amount: number;
+  status: 'pending' | 'paid';
+  date: string;
+  note?: string;
 };
 
 export type Activity = {
@@ -79,6 +83,7 @@ export type PayForm = {
   id: string;
   contact_id: string;
   amount: number;
-  // TODO: more here
   status: 'pending' | 'paid';
+  date: string;
+  note?: string;
 };

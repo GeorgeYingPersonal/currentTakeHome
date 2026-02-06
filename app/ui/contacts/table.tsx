@@ -5,7 +5,7 @@ import {
   ContactsTableType,
   FormattedContactsTable,
 } from '@/app/lib/definitions';
-import {fetchFilteredContacts, fetchFilteredPays} from "@/app/lib/data";
+import { fetchFilteredContacts, fetchFilteredPays } from "@/app/lib/data";
 
 export default async function ContactsTable({
   query,

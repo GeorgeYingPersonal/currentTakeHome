@@ -65,4 +65,4 @@ const activity = [
   { month: 'Dec', activity: 4800 },
 ];
 
-export { users, contacts, pays, activity };
+export { user, contacts, pays, activity };

@@ -1,5 +1,6 @@
 import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { deletePay } from '@/app/lib/actions';
 
 export function CreatePay() {
   return (
@@ -16,7 +17,7 @@ export function CreatePay() {
 export function UpdatePay({ id }: { id: string }) {
   return (
     <Link
-      href="/dashboard/pays"
+      href={`/dashboard/pays/${id}/edit`}
       className="rounded-md border p-2 hover:bg-gray-100"
     >
       <PencilIcon className="w-5" />
@@ -25,12 +26,14 @@ export function UpdatePay({ id }: { id: string }) {
 }
 
 export function DeletePay({ id }: { id: string }) {
+  const deletePayWithId = deletePay.bind(null, id);
+  
   return (
-    <>
+    <form action={deletePayWithId}>
       <button className="rounded-md border p-2 hover:bg-gray-100">
         <span className="sr-only">Delete</span>
         <TrashIcon className="w-5" />
       </button>
-    </>
+    </form>
   );
 }

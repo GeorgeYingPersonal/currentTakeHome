@@ -6,9 +6,12 @@ import {
   ClockIcon,
   CurrencyDollarIcon,
   UserCircleIcon,
+  CalendarIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
+import { updatePay } from '@/app/lib/actions';
 
 export default function EditPayForm({
   pay,
@@ -17,8 +20,10 @@ export default function EditPayForm({
   pay: PayForm;
   contacts: ContactField[];
 }) {
+  const updatePayWithId = updatePay.bind(null, pay.id);
+
   return (
-    <form>
+    <form action={updatePayWithId}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Contact Name */}
         <div className="mb-4">
@@ -62,6 +67,45 @@ export default function EditPayForm({
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               />
               <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+            </div>
+          </div>
+        </div>
+
+        {/* Pay Date */}
+        <div className="mb-4">
+          <label htmlFor="date" className="mb-2 block text-sm font-medium">
+            Choose a date
+          </label>
+          <div className="relative mt-2 rounded-md">
+            <div className="relative">
+              <input
+                id="date"
+                name="date"
+                type="date"
+                defaultValue={pay.date}
+                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              />
+              <CalendarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+            </div>
+          </div>
+        </div>
+
+        {/* Pay Note */}
+        <div className="mb-4">
+          <label htmlFor="note" className="mb-2 block text-sm font-medium">
+            Note (optional)
+          </label>
+          <div className="relative mt-2 rounded-md">
+            <div className="relative">
+              <textarea
+                id="note"
+                name="note"
+                rows={3}
+                defaultValue={pay.note || ''}
+                placeholder="Add a note about this payment..."
+                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              />
+              <DocumentTextIcon className="pointer-events-none absolute left-3 top-3 h-[18px] w-[18px] text-gray-500 peer-focus:text-gray-900" />
             </div>
           </div>
         </div>

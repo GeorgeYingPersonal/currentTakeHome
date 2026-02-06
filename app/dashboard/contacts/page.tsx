@@ -3,10 +3,11 @@ import { PaysTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
 
 export default async function Page(
-    { searchParams }: { searchParams?: {
-        query?: string;
-    }
-}) {
+    { searchParams }: {
+        searchParams?: {
+            query?: string;
+        }
+    }) {
     const query = searchParams?.query || '';
 
     return (
