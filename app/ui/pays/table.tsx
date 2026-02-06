@@ -7,11 +7,17 @@ import { formatDateToLocal } from '@/app/lib/utils';
 export default async function PaysTable({
   query,
   currentPage,
+  status,
+  dateFrom,
+  dateTo,
 }: {
   query: string;
   currentPage: number;
+  status?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }) {
-  const pays = await fetchFilteredPays(query, currentPage);
+  const pays = await fetchFilteredPays(query, currentPage, status, dateFrom, dateTo);
 
   return (
     <div className="mt-6 flow-root">

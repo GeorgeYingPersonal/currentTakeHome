@@ -2,6 +2,7 @@ import Pagination from '@/app/ui/pays/pagination';
 import { fetchPaysPages } from "@/app/lib/data";
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/pays/table';
+import Filters from '@/app/ui/pays/filters';
 import { CreatePay } from '@/app/ui/pays/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { PaysTableSkeleton } from '@/app/ui/skeletons';
@@ -10,15 +11,28 @@ import { Suspense } from 'react';
 export default async function Page({
     searchParams,
 }: {
-    searchParams?: {
+    searchParams?: Promise<{
         query?: string;
         page?: string;
+        status?: string;
+        dateFrom?: string;
+        dateTo?: string;
+    }> | {
+        query?: string;
+        page?: string;
+        status?: string;
+        dateFrom?: string;
+        dateTo?: string;
     }
 }) {
-    const query = searchParams?.query || '';
-    const currentPage = Number(searchParams?.page) || 1;
+    const resolvedSearchParams = searchParams instanceof Promise ? await searchParams : searchParams;
+    const query = resolvedSearchParams?.query || '';
+    const status = resolvedSearchParams?.status;
+    const dateFrom = resolvedSearchParams?.dateFrom;
+    const dateTo = resolvedSearchParams?.dateTo;
+    const currentPage = Number(resolvedSearchParams?.page) || 1;
 
-    const totalPages = await fetchPaysPages(query);
+    const totalPages = await fetchPaysPages(query, status, dateFrom, dateTo);
 
     return (
         <div className="w-full">
@@ -29,8 +43,9 @@ export default async function Page({
                 <Search placeholder="Search pays..." />
                 <CreatePay />
             </div>
-            <Suspense key={query + currentPage} fallback={<PaysTableSkeleton />}>
-                <Table query={query} currentPage={currentPage} />
+            <Filters />
+            <Suspense key={`${query}-${currentPage}-${status || 'all'}-${dateFrom || ''}-${dateTo || ''}`} fallback={<PaysTableSkeleton />}>
+                <Table query={query} currentPage={currentPage} status={status} dateFrom={dateFrom} dateTo={dateTo} />
             </Suspense>
             <div className="mt-5 flex w-full justify-center">
                 <Pagination totalPages={totalPages} />

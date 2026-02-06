@@ -115,6 +115,9 @@ const ITEMS_PER_PAGE = 6;
 export async function fetchFilteredPays(
   query: string,
   currentPage: number,
+  status?: string,
+  dateFrom?: string,
+  dateTo?: string,
 ): Promise<PaysTable[]> {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
@@ -136,11 +139,31 @@ export async function fetchFilteredPays(
     `;
 
     const params: any[] = [];
+    const conditions: string[] = [];
 
     if (query) {
-      sql += ` WHERE c.name LIKE ? OR c.email LIKE ?`;
+      conditions.push(`(c.name LIKE ? OR c.email LIKE ?)`);
       const searchTerm = `%${query}%`;
       params.push(searchTerm, searchTerm);
+    }
+
+    if (status && status !== 'all') {
+      conditions.push(`p.status = ?`);
+      params.push(status);
+    }
+
+    if (dateFrom) {
+      conditions.push(`p.date >= ?`);
+      params.push(dateFrom);
+    }
+
+    if (dateTo) {
+      conditions.push(`p.date <= ?`);
+      params.push(dateTo);
+    }
+
+    if (conditions.length > 0) {
+      sql += ` WHERE ${conditions.join(' AND ')}`;
     }
 
     sql += ` ORDER BY p.date DESC, p.created_at DESC LIMIT ? OFFSET ?`;
@@ -173,17 +196,42 @@ export async function fetchFilteredPays(
   }
 }
 
-export async function fetchPaysPages(query: string) {
+export async function fetchPaysPages(
+  query: string,
+  status?: string,
+  dateFrom?: string,
+  dateTo?: string,
+) {
   try {
     const db = getDb();
 
     let sql = 'SELECT COUNT(*) as count FROM pays p JOIN contacts c ON p.contact_id = c.id';
     const params: any[] = [];
+    const conditions: string[] = [];
 
     if (query) {
-      sql += ' WHERE c.name LIKE ? OR c.email LIKE ?';
+      conditions.push(`(c.name LIKE ? OR c.email LIKE ?)`);
       const searchTerm = `%${query}%`;
       params.push(searchTerm, searchTerm);
+    }
+
+    if (status && status !== 'all') {
+      conditions.push(`p.status = ?`);
+      params.push(status);
+    }
+
+    if (dateFrom) {
+      conditions.push(`p.date >= ?`);
+      params.push(dateFrom);
+    }
+
+    if (dateTo) {
+      conditions.push(`p.date <= ?`);
+      params.push(dateTo);
+    }
+
+    if (conditions.length > 0) {
+      sql += ` WHERE ${conditions.join(' AND ')}`;
     }
 
     const result = db.prepare(sql).get(...params) as { count: number };
