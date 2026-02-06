@@ -20,7 +20,8 @@ export type Pay = {
   id: string;
   contact_id: string;
   amount: number;
-  status: 'pending' | 'paid';
+  status: 'pending' | 'received';
+  flow: 'request' | 'pay';
   date: string;
   note?: string;
 };
@@ -51,7 +52,8 @@ export type PaysTable = {
   image_url: string;
   date: string;
   amount: number;
-  status: 'pending' | 'paid';
+  status: 'pending' | 'received';
+  flow: 'request' | 'pay';
 };
 
 export type ContactsTableType = {
@@ -61,7 +63,7 @@ export type ContactsTableType = {
   image_url: string;
   total_pays: number;
   total_pending: number;
-  total_paid: number;
+  total_received: number;
 };
 
 export type FormattedContactsTable = {
@@ -71,7 +73,7 @@ export type FormattedContactsTable = {
   image_url: string;
   total_pays: number;
   total_pending: string;
-  total_paid: string;
+  total_received: string;
 };
 
 export type ContactField = {
@@ -83,7 +85,8 @@ export type PayForm = {
   id: string;
   contact_id: string;
   amount: number;
-  status: 'pending' | 'paid';
+  status: 'pending' | 'received';
+  flow: 'request' | 'pay';
   date: string;
   note?: string;
 };

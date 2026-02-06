@@ -30,8 +30,8 @@ console.log(`✅ Seeded ${contacts.length} contacts`);
 /*
 import { randomUUID } from 'crypto';
 const insertPay = db.prepare(`
-  INSERT INTO pays (id, contact_id, amount, status, date)
-  VALUES (?, ?, ?, ?, ?)
+  INSERT INTO pays (id, contact_id, amount, status, flow, date)
+  VALUES (?, ?, ?, ?, ?, ?)
 `);
 
 const samplePays = [];
@@ -44,14 +44,15 @@ for (let i = 0; i < 20; i++) {
     id: randomUUID(),
     contact_id: randomContact.id,
     amount: Math.floor(Math.random() * 10000) + 1000, // $10 to $100 in cents
-    status: Math.random() > 0.5 ? 'paid' : 'pending',
+    status: Math.random() > 0.5 ? 'received' : 'pending',
+    flow: Math.random() > 0.5 ? 'pay' : 'request',
     date: randomDate.toISOString().split('T')[0],
   });
 }
 
 const insertManyPays = db.transaction((pays) => {
   for (const pay of pays) {
-    insertPay.run(pay.id, pay.contact_id, pay.amount, pay.status, pay.date);
+    insertPay.run(pay.id, pay.contact_id, pay.amount, pay.status, pay.flow, pay.date);
   }
 });
 

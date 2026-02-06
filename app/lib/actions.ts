@@ -10,7 +10,8 @@ const FormSchema = z.object({
     id: z.string(),
     contactId: z.string(),
     amount: z.coerce.number(),
-    status: z.enum(['pending', 'paid']),
+    status: z.enum(['pending', 'received']),
+    flow: z.enum(['request', 'pay']),
     date: z.string(),
     note: z.string().optional(),
 });
@@ -18,10 +19,12 @@ const FormSchema = z.object({
 const CreatePay = FormSchema.omit({ id: true });
 export async function createPay(formData: FormData) {
     const statusValue = formData.get('status');
-    const { contactId, amount, status, date, note } = CreatePay.parse({
+    const flowValue = formData.get('flow');
+    const { contactId, amount, status, flow, date, note } = CreatePay.parse({
         contactId: formData.get('contactId'),
         amount: formData.get('amount'),
         status: statusValue || 'pending', // Default to 'pending' if not provided
+        flow: flowValue || 'pay', // Default to 'pay' if not provided
         date: formData.get('date') || new Date().toISOString().split('T')[0],
         note: formData.get('note') || undefined,
     });
@@ -32,9 +35,9 @@ export async function createPay(formData: FormData) {
     try {
         const db = getDb();
         db.prepare(`
-            INSERT INTO pays (id, contact_id, amount, status, date, note)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `).run(id, contactId, amountInCents, status, date, note || null);
+            INSERT INTO pays (id, contact_id, amount, status, flow, date, note)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).run(id, contactId, amountInCents, status, flow, date, note || null);
 
         revalidatePath('/dashboard/pays');
         revalidatePath('/dashboard');
@@ -49,11 +52,12 @@ export async function createPay(formData: FormData) {
 
 const UpdatePay = FormSchema;
 export async function updatePay(id: string, formData: FormData) {
-    const { contactId, amount, status, date, note } = UpdatePay.parse({
+    const { contactId, amount, status, flow, date, note } = UpdatePay.parse({
         id,
         contactId: formData.get('contactId'),
         amount: formData.get('amount'),
         status: formData.get('status'),
+        flow: formData.get('flow'),
         date: formData.get('date'),
         note: formData.get('note') || undefined,
     });
@@ -64,9 +68,9 @@ export async function updatePay(id: string, formData: FormData) {
         const db = getDb();
         db.prepare(`
             UPDATE pays
-            SET contact_id = ?, amount = ?, status = ?, date = ?, note = ?
+            SET contact_id = ?, amount = ?, status = ?, flow = ?, date = ?, note = ?
             WHERE id = ?
-        `).run(contactId, amountInCents, status, date, note || null, id);
+        `).run(contactId, amountInCents, status, flow, date, note || null, id);
 
         revalidatePath('/dashboard/pays');
         revalidatePath('/dashboard');

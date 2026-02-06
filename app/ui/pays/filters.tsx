@@ -20,6 +20,17 @@ export default function Filters() {
         replace(`${pathname}?${params.toString()}`);
     };
 
+    const handleFlowChange = (flow: string) => {
+        const params = new URLSearchParams(searchParams);
+        params.set('page', '1');
+        if (flow && flow !== 'all') {
+            params.set('flow', flow);
+        } else {
+            params.delete('flow');
+        }
+        replace(`${pathname}?${params.toString()}`);
+    };
+
     const handleDateFromChange = useDebouncedCallback((date: string) => {
         const params = new URLSearchParams(searchParams);
         params.set('page', '1');
@@ -45,6 +56,7 @@ export default function Filters() {
     const clearFilters = () => {
         const params = new URLSearchParams(searchParams);
         params.delete('status');
+        params.delete('flow');
         params.delete('dateFrom');
         params.delete('dateTo');
         params.set('page', '1');
@@ -52,6 +64,7 @@ export default function Filters() {
     };
 
     const hasActiveFilters = searchParams.get('status') ||
+        searchParams.get('flow') ||
         searchParams.get('dateFrom') ||
         searchParams.get('dateTo');
 
@@ -69,7 +82,7 @@ export default function Filters() {
                     </button>
                 )}
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {/* Status Filter */}
                 <div>
                     <label htmlFor="status" className="mb-1 block text-xs font-medium text-gray-700">
@@ -84,7 +97,25 @@ export default function Filters() {
                     >
                         <option value="all">All Status</option>
                         <option value="pending">Pending</option>
-                        <option value="paid">Paid</option>
+                        <option value="received">Received</option>
+                    </select>
+                </div>
+
+                {/* Flow Filter */}
+                <div>
+                    <label htmlFor="flow" className="mb-1 block text-xs font-medium text-gray-700">
+                        Flow
+                    </label>
+                    <select
+                        id="flow"
+                        key={searchParams.get('flow') || 'all'}
+                        onChange={(e) => handleFlowChange(e.target.value)}
+                        value={searchParams.get('flow') || 'all'}
+                        className="block w-full rounded-md border border-gray-200 py-2 pl-3 pr-10 text-sm outline-2 placeholder:text-gray-500"
+                    >
+                        <option value="all">All Flow</option>
+                        <option value="request">Request</option>
+                        <option value="pay">Pay</option>
                     </select>
                 </div>
 

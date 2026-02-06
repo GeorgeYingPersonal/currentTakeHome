@@ -55,8 +55,8 @@ export default async function ContactsTable({
                         <p className="font-medium">{contact.total_pending}</p>
                       </div>
                       <div className="flex w-1/2 flex-col">
-                        <p className="text-xs">Paid</p>
-                        <p className="font-medium">{contact.total_paid}</p>
+                        <p className="text-xs">Received</p>
+                        <p className="font-medium">{contact.total_received}</p>
                       </div>
                     </div>
                     <div className="pt-4 text-sm">
@@ -81,7 +81,7 @@ export default async function ContactsTable({
                       Total Pending
                     </th>
                     <th scope="col" className="px-4 py-5 font-medium">
-                      Total Paid
+                      Total Received
                     </th>
                   </tr>
                 </thead>
@@ -111,7 +111,7 @@ export default async function ContactsTable({
                         {contact.total_pending}
                       </td>
                       <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
-                        {contact.total_paid}
+                        {contact.total_received}
                       </td>
                     </tr>
                   ))}

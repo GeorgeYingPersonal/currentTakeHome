@@ -8,6 +8,8 @@ import {
   UserCircleIcon,
   CalendarIcon,
   DocumentTextIcon,
+  ArrowUpTrayIcon,
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
@@ -110,10 +112,53 @@ export default function EditPayForm({
           </div>
         </div>
 
-        {/* Pay Status */}
+        {/* Payment Flow */}
+        <fieldset className="mb-4">
+          <legend className="mb-2 block text-sm font-medium">
+            Payment Flow
+          </legend>
+          <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
+            <div className="flex gap-4">
+              <div className="flex items-center">
+                <input
+                  id="request"
+                  name="flow"
+                  type="radio"
+                  value="request"
+                  defaultChecked={pay.flow === 'request'}
+                  className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
+                />
+                <label
+                  htmlFor="request"
+                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1.5 text-xs font-medium text-blue-700"
+                >
+                  Request <ArrowDownTrayIcon className="h-4 w-4" />
+                </label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  id="pay"
+                  name="flow"
+                  type="radio"
+                  value="pay"
+                  defaultChecked={pay.flow === 'pay'}
+                  className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
+                />
+                <label
+                  htmlFor="pay"
+                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-green-100 px-3 py-1.5 text-xs font-medium text-green-700"
+                >
+                  Pay <ArrowUpTrayIcon className="h-4 w-4" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        {/* Payment Status */}
         <fieldset>
           <legend className="mb-2 block text-sm font-medium">
-            Set the pay status
+            Payment Status
           </legend>
           <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
             <div className="flex gap-4">
@@ -135,18 +180,18 @@ export default function EditPayForm({
               </div>
               <div className="flex items-center">
                 <input
-                  id="paid"
+                  id="received"
                   name="status"
                   type="radio"
-                  value="paid"
-                  defaultChecked={pay.status === 'paid'}
+                  value="received"
+                  defaultChecked={pay.status === 'received'}
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                 />
                 <label
-                  htmlFor="paid"
+                  htmlFor="received"
                   className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 text-xs font-medium text-white"
                 >
-                  Paid <CheckIcon className="h-4 w-4" />
+                  Received <CheckIcon className="h-4 w-4" />
                 </label>
               </div>
             </div>

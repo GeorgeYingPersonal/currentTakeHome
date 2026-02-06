@@ -15,12 +15,14 @@ export default async function Page({
         query?: string;
         page?: string;
         status?: string;
+        flow?: string;
         dateFrom?: string;
         dateTo?: string;
     }> | {
         query?: string;
         page?: string;
         status?: string;
+        flow?: string;
         dateFrom?: string;
         dateTo?: string;
     }
@@ -28,11 +30,12 @@ export default async function Page({
     const resolvedSearchParams = searchParams instanceof Promise ? await searchParams : searchParams;
     const query = resolvedSearchParams?.query || '';
     const status = resolvedSearchParams?.status;
+    const flow = resolvedSearchParams?.flow;
     const dateFrom = resolvedSearchParams?.dateFrom;
     const dateTo = resolvedSearchParams?.dateTo;
     const currentPage = Number(resolvedSearchParams?.page) || 1;
 
-    const totalPages = await fetchPaysPages(query, status, dateFrom, dateTo);
+    const totalPages = await fetchPaysPages(query, status, flow, dateFrom, dateTo);
 
     return (
         <div className="w-full">
@@ -44,8 +47,8 @@ export default async function Page({
                 <CreatePay />
             </div>
             <Filters />
-            <Suspense key={`${query}-${currentPage}-${status || 'all'}-${dateFrom || ''}-${dateTo || ''}`} fallback={<PaysTableSkeleton />}>
-                <Table query={query} currentPage={currentPage} status={status} dateFrom={dateFrom} dateTo={dateTo} />
+            <Suspense key={`${query}-${currentPage}-${status || 'all'}-${flow || 'all'}-${dateFrom || ''}-${dateTo || ''}`} fallback={<PaysTableSkeleton />}>
+                <Table query={query} currentPage={currentPage} status={status} flow={flow} dateFrom={dateFrom} dateTo={dateTo} />
             </Suspense>
             <div className="mt-5 flex w-full justify-center">
                 <Pagination totalPages={totalPages} />

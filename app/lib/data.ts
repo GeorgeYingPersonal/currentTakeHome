@@ -88,10 +88,10 @@ export async function fetchCardData() {
     // Get counts and totals in parallel
     const numberOfContacts = db.prepare('SELECT COUNT(*) as count FROM contacts').get() as { count: number };
     const numberOfPays = db.prepare('SELECT COUNT(*) as count FROM pays').get() as { count: number };
-    const paidData = db.prepare(`
+    const receivedData = db.prepare(`
       SELECT COALESCE(SUM(amount), 0) as total 
       FROM pays 
-      WHERE status = 'paid'
+      WHERE status = 'received'
     `).get() as { total: number };
     const pendingData = db.prepare(`
       SELECT COALESCE(SUM(amount), 0) as total 
@@ -102,7 +102,7 @@ export async function fetchCardData() {
     return {
       numberOfContacts: numberOfContacts.count,
       numberOfPays: numberOfPays.count,
-      totalPaidPays: paidData.total / 100, // Convert from cents to dollars
+      totalReceivedPays: receivedData.total / 100, // Convert from cents to dollars
       totalPendingPays: pendingData.total / 100, // Convert from cents to dollars
     };
   } catch (error) {
@@ -116,6 +116,7 @@ export async function fetchFilteredPays(
   query: string,
   currentPage: number,
   status?: string,
+  flow?: string,
   dateFrom?: string,
   dateTo?: string,
 ): Promise<PaysTable[]> {
@@ -133,7 +134,8 @@ export async function fetchFilteredPays(
         c.image_url,
         p.date,
         p.amount,
-        p.status
+        p.status,
+        p.flow
       FROM pays p
       JOIN contacts c ON p.contact_id = c.id
     `;
@@ -150,6 +152,11 @@ export async function fetchFilteredPays(
     if (status && status !== 'all') {
       conditions.push(`p.status = ?`);
       params.push(status);
+    }
+
+    if (flow && flow !== 'all') {
+      conditions.push(`p.flow = ?`);
+      params.push(flow);
     }
 
     if (dateFrom) {
@@ -177,7 +184,8 @@ export async function fetchFilteredPays(
       image_url: string;
       date: string;
       amount: number;
-      status: 'pending' | 'paid';
+      status: 'pending' | 'received';
+      flow: 'request' | 'pay';
     }>;
 
     return pays.map((pay) => ({
@@ -189,6 +197,7 @@ export async function fetchFilteredPays(
       date: pay.date,
       amount: pay.amount / 100, // Convert from cents to dollars
       status: pay.status,
+      flow: pay.flow,
     }));
   } catch (error) {
     console.error('Database Error:', error);
@@ -199,6 +208,7 @@ export async function fetchFilteredPays(
 export async function fetchPaysPages(
   query: string,
   status?: string,
+  flow?: string,
   dateFrom?: string,
   dateTo?: string,
 ) {
@@ -218,6 +228,11 @@ export async function fetchPaysPages(
     if (status && status !== 'all') {
       conditions.push(`p.status = ?`);
       params.push(status);
+    }
+
+    if (flow && flow !== 'all') {
+      conditions.push(`p.flow = ?`);
+      params.push(flow);
     }
 
     if (dateFrom) {
@@ -247,14 +262,15 @@ export async function fetchPayById(id: string): Promise<Pay | undefined> {
     const db = getDb();
 
     const pay = db.prepare(`
-      SELECT id, contact_id, amount, status, date, note
+      SELECT id, contact_id, amount, status, flow, date, note
       FROM pays
       WHERE id = ?
     `).get(id) as {
       id: string;
       contact_id: string;
       amount: number;
-      status: 'pending' | 'paid';
+      status: 'pending' | 'received';
+      flow: 'request' | 'pay';
       date: string;
       note: string | null;
     } | undefined;
@@ -266,6 +282,7 @@ export async function fetchPayById(id: string): Promise<Pay | undefined> {
       contact_id: pay.contact_id,
       amount: pay.amount / 100, // Convert from cents to dollars
       status: pay.status,
+      flow: pay.flow,
       date: pay.date,
       note: pay.note || undefined,
     };
@@ -303,7 +320,7 @@ export async function fetchFilteredContacts(query: string): Promise<ContactsTabl
         c.image_url,
         COUNT(p.id) as total_pays,
         COALESCE(SUM(CASE WHEN p.status = 'pending' THEN p.amount ELSE 0 END), 0) as total_pending,
-        COALESCE(SUM(CASE WHEN p.status = 'paid' THEN p.amount ELSE 0 END), 0) as total_paid
+        COALESCE(SUM(CASE WHEN p.status = 'received' THEN p.amount ELSE 0 END), 0) as total_received
       FROM contacts c
       LEFT JOIN pays p ON c.id = p.contact_id
     `;
@@ -325,7 +342,7 @@ export async function fetchFilteredContacts(query: string): Promise<ContactsTabl
       image_url: string;
       total_pays: number;
       total_pending: number;
-      total_paid: number;
+      total_received: number;
     }>;
 
     return contacts.map((contact) => ({
@@ -335,7 +352,7 @@ export async function fetchFilteredContacts(query: string): Promise<ContactsTabl
       image_url: contact.image_url,
       total_pays: contact.total_pays,
       total_pending: contact.total_pending / 100, // Convert from cents to dollars
-      total_paid: contact.total_paid / 100, // Convert from cents to dollars
+      total_received: contact.total_received / 100, // Convert from cents to dollars
     }));
   } catch (err) {
     console.error('Database Error:', err);

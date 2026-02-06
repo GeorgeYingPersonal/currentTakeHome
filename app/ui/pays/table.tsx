@@ -8,16 +8,18 @@ export default async function PaysTable({
   query,
   currentPage,
   status,
+  flow,
   dateFrom,
   dateTo,
 }: {
   query: string;
   currentPage: number;
   status?: string;
+  flow?: string;
   dateFrom?: string;
   dateTo?: string;
 }) {
-  const pays = await fetchFilteredPays(query, currentPage, status, dateFrom, dateTo);
+  const pays = await fetchFilteredPays(query, currentPage, status, flow, dateFrom, dateTo);
 
   return (
     <div className="mt-6 flow-root">
@@ -57,6 +59,22 @@ export default async function PaysTable({
                     {formatDateToLocal(pay.date)}
                   </p>
                 </div>
+                <div className="flex w-full items-center justify-between border-b pb-4 pt-4">
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${pay.flow === 'request'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-green-100 text-green-700'
+                      }`}>
+                      {pay.flow === 'request' ? 'Request' : 'Pay'}
+                    </span>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${pay.status === 'pending'
+                      ? 'bg-gray-100 text-gray-600'
+                      : 'bg-green-500 text-white'
+                      }`}>
+                      {pay.status === 'pending' ? 'Pending' : 'Received'}
+                    </span>
+                  </div>
+                </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div className="flex justify-end gap-2">
                     <UpdatePay id={pay.id} />
@@ -80,6 +98,12 @@ export default async function PaysTable({
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Date
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Flow
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Status
                 </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="sr-only">Edit</span>
@@ -115,6 +139,22 @@ export default async function PaysTable({
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatDateToLocal(pay.date)}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${pay.flow === 'request'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-green-100 text-green-700'
+                      }`}>
+                      {pay.flow === 'request' ? 'Request' : 'Pay'}
+                    </span>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${pay.status === 'pending'
+                      ? 'bg-gray-100 text-gray-600'
+                      : 'bg-green-500 text-white'
+                      }`}>
+                      {pay.status === 'pending' ? 'Pending' : 'Received'}
+                    </span>
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
