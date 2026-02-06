@@ -3,7 +3,7 @@ import { fetchPaysPages } from "@/app/lib/data";
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/pays/table';
 import Filters from '@/app/ui/pays/filters';
-import { CreatePay } from '@/app/ui/pays/buttons';
+import { CreatePay, CreateGroupPay } from '@/app/ui/pays/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { PaysTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
@@ -44,7 +44,10 @@ export default async function Page({
             </div>
             <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
                 <Search placeholder="Search pays..." />
-                <CreatePay />
+                <div className="flex gap-2">
+                    <CreatePay />
+                    <CreateGroupPay />
+                </div>
             </div>
             <Filters />
             <Suspense key={`${query}-${currentPage}-${status || 'all'}-${flow || 'all'}-${dateFrom || ''}-${dateTo || ''}`} fallback={<PaysTableSkeleton />}>

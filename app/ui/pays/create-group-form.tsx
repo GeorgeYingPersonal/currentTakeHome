@@ -12,57 +12,102 @@ import {
   DocumentTextIcon,
   ClockIcon,
   CheckIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
-import { createPay } from "@/app/lib/actions";
+import { createGroupPay } from "@/app/lib/actions";
 
 export default function Form({ contacts }: { contacts: ContactField[] }) {
-  const [contactId, setContactId] = useState<string>('');
-  const [amount, setAmount] = useState<string>('');
+  const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
+  const [totalAmount, setTotalAmount] = useState<string>('');
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
+  const handleContactToggle = (contactId: string) => {
+    setSelectedContacts(prev =>
+      prev.includes(contactId)
+        ? prev.filter(id => id !== contactId)
+        : [...prev, contactId]
+    );
+  };
+
+  const amountPerContact = selectedContacts.length > 0 && totalAmount
+    ? (parseFloat(totalAmount) || 0) / selectedContacts.length
+    : 0;
+
   // Validation
+  const isAmountValid = totalAmount !== '' && !isNaN(parseFloat(totalAmount)) && parseFloat(totalAmount) > 0;
   const isFormValid =
-    contactId !== '' &&
-    amount !== '' &&
-    !isNaN(parseFloat(amount)) &&
-    parseFloat(amount) > 0 &&
+    selectedContacts.length > 0 &&
+    isAmountValid &&
     date !== '';
 
+  const handleSubmit = async (formData: FormData) => {
+    // Add selected contact IDs to form data
+    selectedContacts.forEach(contactId => {
+      formData.append('contactIds', contactId);
+    });
+    return createGroupPay(formData);
+  };
+
   return (
-    <form action={createPay}>
+    <form action={handleSubmit}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        {/* Contact Name */}
+        {/* Multiple Contact Selection */}
         <div className="mb-4">
-          <label htmlFor="contact" className="mb-2 block text-sm font-medium">
-            Choose contact
+          <label htmlFor="contacts" className="mb-2 block text-sm font-medium">
+            Holding command (⌘) or shift (⇧) to select multiple contacts
           </label>
           <div className="relative">
             <select
-              id="contact"
-              name="contactId"
-              value={contactId}
-              onChange={(e) => setContactId(e.target.value)}
-              required
+              id="contacts"
+              multiple
+              size={5}
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              value={selectedContacts}
+              onChange={(e) => {
+                const values = Array.from(e.target.selectedOptions, option => option.value);
+                setSelectedContacts(values);
+              }}
             >
-              <option value="" disabled>
-                Select a contact
-              </option>
               {contacts.map((contact) => (
                 <option key={contact.id} value={contact.id}>
                   {contact.name}
                 </option>
               ))}
             </select>
-            <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+            <UserCircleIcon className="pointer-events-none absolute left-3 top-3 h-[18px] w-[18px] text-gray-500" />
           </div>
+          {selectedContacts.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {selectedContacts.map(contactId => {
+                const contact = contacts.find(c => c.id === contactId);
+                return contact ? (
+                  <span
+                    key={contactId}
+                    className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700"
+                  >
+                    {contact.name}
+                    <button
+                      type="button"
+                      onClick={() => handleContactToggle(contactId)}
+                      className="ml-1 rounded-full hover:bg-blue-200"
+                    >
+                      <XMarkIcon className="h-3 w-3" />
+                    </button>
+                  </span>
+                ) : null;
+              })}
+            </div>
+          )}
+          <p className="mt-1 text-xs text-gray-500">
+            {selectedContacts.length} contact{selectedContacts.length !== 1 ? 's' : ''} selected
+          </p>
         </div>
 
-        {/* Pay Amount */}
+        {/* Total Amount */}
         <div className="mb-4">
           <label htmlFor="amount" className="mb-2 block text-sm font-medium">
-            Choose an amount
+            Total amount (will be split evenly)
           </label>
           <div className="relative mt-2 rounded-md">
             <div className="relative">
@@ -71,16 +116,20 @@ export default function Form({ contacts }: { contacts: ContactField[] }) {
                 name="amount"
                 type="number"
                 step="0.01"
-                placeholder="Enter USD amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Enter total USD amount"
                 required
-                min="0.01"
-                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+                value={totalAmount}
+                onChange={(e) => setTotalAmount(e.target.value)}
+                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 pr-3 text-sm outline-2 placeholder:text-gray-500"
               />
               <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
           </div>
+          {selectedContacts.length > 0 && totalAmount && (
+            <p className="mt-1 text-xs text-gray-500">
+              Each contact will receive: ${amountPerContact.toFixed(2)}
+            </p>
+          )}
         </div>
 
         {/* Pay Date */}
@@ -115,7 +164,7 @@ export default function Form({ contacts }: { contacts: ContactField[] }) {
                 id="note"
                 name="note"
                 rows={3}
-                placeholder="Add a note about this payment..."
+                placeholder="Add a note about this group payment..."
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               />
               <DocumentTextIcon className="pointer-events-none absolute left-3 top-3 h-[18px] w-[18px] text-gray-500 peer-focus:text-gray-900" />
@@ -215,9 +264,10 @@ export default function Form({ contacts }: { contacts: ContactField[] }) {
           Cancel
         </Link>
         <Button type="submit" disabled={!isFormValid}>
-          Create Pay
+          Create Group Pay ({selectedContacts.length} contact{selectedContacts.length !== 1 ? 's' : ''})
         </Button>
       </div>
     </form>
   );
 }
+
